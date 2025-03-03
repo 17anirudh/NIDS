@@ -1,0 +1,5 @@
+,Decision Tree,Random Forest,Naive Bayes,Stacking Classifier,Bagging Classifier,AdaBoost,CatBoost,XGBoost,Gradient Boosting
+Train Score,97.501,97.417,86.647,97.502,86.645,98.969,99.117,98.385,98.364
+Test Score,97.417,97.272,86.232,97.417,86.232,98.643,98.769,98.214,98.112
+Accuracy,97.417,97.272,86.232,97.417,86.232,98.643,98.769,98.214,98.112
+Execution time,0.21666667,14.0,0.01666667,0.9,0.01666667,38.0,0.53333333,0.06666667,1.0

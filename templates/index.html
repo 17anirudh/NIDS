@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://www.ionos.com/favicon.ico" type="image/x-icon">
+    <style>
+        *{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background-color: black;
+    color: azure;
+    font-size: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+h2{
+    text-align: center;
+}
+div.form{
+    margin-top: 3vw;
+    padding: 5vh;
+    font-size: 1.3rem;
+    border: solid red 1px;
+}
+input {
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    font-size: 1rem;
+    width: 9em;
+    color: lightcoral;
+    box-shadow: 0 0.4rem #dfd9d9;
+    cursor: pointer;
+  }
+  
+  .input-wrapper input:focus {
+    outline-color: lightcoral;
+  }
+    </style>
+    <title>NIS</title>
+</head>
+<body>
+    <h2>Network Intrusion System</h2>
+    <div class="form">
+        <form action="/predict" method="post">
+
+            <label for="protocol_type">protocol_type: </label>
+            <input type="text" name="protocol_type" required> <br><br>
+
+            <label for="service">Service: </label>
+            <input type="text" name="service" required> <br><br>
+
+            <label for="count">Count: </label>
+            <input type="number" name="count" required> <br><br>
+
+            <label for="dst_host_diff_srv_rate">Dst_host_diff_srv_rate: </label>
+            <input type="number" name="dst_host_diff_srv_rate" required> <br><br>
+
+            <label for="dst_host_rerror_rate">Dst_host_rerror_rate: </label>
+            <input type="number" name="dst_host_rerror_rate" required> <br><br>
+
+            <label for="serror_rate">Serror_rate: </label>
+            <input type="number" name="serror_rate" required> <br><br>
+
+            <label for="dst_host_serror_rate">dst_host_serror_rate: </label>
+            <input type="number" name="dst_host_serror_rate" required> <br><br>
+
+            <label for="diff_srv_rate">diff_srv_rate: </label>
+            <input type="number" name="diff_srv_rate" required> <br><br>
+
+            <label for="srv_serror_rate">srv_serror_rate: </label>
+            <input type="number" name="srv_serror_rate" required> <br><br>
+
+            <label for="dst_host_count">dst_host_count</label>
+            <input type="number" name="dst_host_count" required> <br><br>
+
+            <label for="dst_host_same_srv_rate">dst_host_same_srv_rate</label>
+            <input type="number" name="dst_host_same_srv_rate" required> <br><br>
+
+            <label for="model">Choose a model :</label>
+            <select name="model" id="model">
+                <option value="dt">Decision Tree</option>
+                <option value="rf">Random Forest</option>
+                <option value="nb">Naive Bayes</option>
+                <option value="ada">Ada Boost</option>
+                <option value="stack">Stacking</option>
+                <option value="xgb">Xgboost</option>
+                <option value="cat">Catboost</option>
+                <option value="gb">Gradient Boosting</option>
+            </select>
+            <br><br>
+            <input type="reset"> 
+            <input type="submit" value="predict">  <br><br>
+        </form>
+        {% if prediction_text %}
+        <div class="result">
+            {{ prediction_text }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
