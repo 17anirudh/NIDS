@@ -2,9 +2,11 @@ from flask import Flask, request, render_template
 import joblib, pickle
 import numpy as np
 import pandas as pd
+import xgboost as xgb
 
 dt_path = 'models/decision_tree.pkl'
 ada_path = 'models/adaboost.pkl'
+nb_path = 'models/naive_bayes.pkl'
 cat_path = 'models/catboost.pkl'
 gb_path = 'models/gradient_boosting.pkl'
 rf_path = 'models/random_forest.pkl'
@@ -37,9 +39,12 @@ dt = load_model(dt_path)
 ada = load_model(ada_path)
 cat = load_model(cat_path)
 gb = load_model(gb_path)
+nb = load_model(nb_path)
 rf = load_model(rf_path)
 stack = load_model(stack_path)
-xgb = load_model(xgb_path)
+
+xgb_clf = xgb.Booster()
+xgb_clf.load_model("models/xgb.bin")
 
 # Load encoders and scalers 
 with open(encoder_path, 'rb') as file:
@@ -53,66 +58,61 @@ with open(target_path, 'rb') as file:
 
 
 model_dict = {}
-for name, model in [('dt', dt), ('rf', rf), ('ada', ada), ('stack', stack), ('xgb', xgb), ('cat', cat), ('gb', gb)]:
+for name, model in [('dt', dt), ('nb', nb), ('rf', rf), ('ada', ada), ('stack', stack), ('xgb', xgb_clf), ('cat', cat), ('gb', gb)]:
     if model is not None:
         model_dict[name] = model
-    else:
-        print(f"Warning: Skipping model '{name}' as it's None or doesn't have predict method")
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
+    """
+    Output: returns index.html
+    """
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Create a DataFrame from form data
+        """
+        Input: When user clicks 'predict', the form values
+
+        Processing: Encodes or scales respectively and predicts from already trained models imported
+
+        Output: Predicted value using inverse label transform
+        """
+
         input_data = {k: [v] for k, v in request.form.items() if k != 'model'}
         selected_model = request.form.get('model')
         input_df = pd.DataFrame(input_data)
+        expected_features = xgb_clf.feature_names
+        print(expected_features)
         
-        # Convert numeric columns to float
         numeric_cols = ['count', 'dst_host_diff_srv_rate', 'dst_host_rerror_rate', 
                        'serror_rate', 'dst_host_serror_rate', 'diff_srv_rate',
                        'srv_serror_rate', 'dst_host_count', 'dst_host_same_srv_rate']
-
         categorical_cols = ['protocol_type', 'service']
         
-        for col in numeric_cols:
-            if col in input_df.columns:
+        for col in input_df.columns:
+            if col in scalers and numeric_cols:
                 input_df[col] = input_df[col].astype(float)
-            if col in scalers:
                 input_df[col] = scalers[col].transform(input_df[[col]])
-        
-        # Apply encoders to categorical columns
-        
-        for col in categorical_cols:
-            if col in input_df.columns and col in encoders:
+            if col in categorical_cols and encoders:
                 input_df[col] = encoders[col].transform(input_df[[col]])
         
-        # Apply scalers to numeric columns
-        for col in numeric_cols:
-            if col in input_df.columns and col in scalers:
-                input_df[col] = scalers[col].transform(input_df[[col]])
-        
         # Convert DataFrame to numpy array for prediction
+        input_df = input_df[expected_features]
         features = input_df.values
         
         if selected_model in model_dict:
             model = model_dict[selected_model]
             if selected_model == 'xgb':
-                import xgboost as xgb
-                # Convert to DMatrix for XGBoost
-                dmatrix = xgb.DMatrix(features)
-                prediction = model.predict(dmatrix)
+                dmatrix = xgb.DMatrix(features, feature_names=input_df.columns.tolist())
+                prediction = np.round(model.predict(dmatrix)).astype(int)
             else:
-                # Regular prediction for other models
                 prediction = model.predict(features)
             
-            
-            # Apply inverse_transform to the prediction
+
             if hasattr(target, 'inverse_transform'):
                 output = target.inverse_transform([prediction[0]])[0]
             else:
