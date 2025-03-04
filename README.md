@@ -2,8 +2,31 @@
 
 [![Deployment](https://img.shields.io/badge/Deployment-Render-blue)](https://intrusion-detection-yt2w.onrender.com/)
 
-A machine learning application that detects network intrusions using the NSL-KDD dataset. This project implements various classification algorithms to identify abnormal network activities and potential security threats.
+Machine learning application that detects intrusions using the NSL-KDD dataset. This project uses various classification algorithms to recognizes abnormalities.
 
+Overview
+This application uses machine learning models trained on the NSL-KDD dataset to classify network traffic as either normal or intrusive. Users can fill a form using the link, and can check whether their values cause an attack or not
+
+Features
+Web-based interface for easy interaction
+Multiple machine learning models for improved accuracy:
+Decision Trees
+Random Forest
+Naive Bayes
+Stacking
+Bagging
+Gradient Boosting
+XGBoost
+CatBoost
+Model persistence using pickle/joblib
+Build backend using Flask
+Deployed on Render for accessibility
+Technology Stack
+Data Processing: Pandas, NumPy
+Machine Learning: scikit-learn, XGBoost, CatBoost
+Model Serialization: pickle, joblib
+Backend: Flask (Python)
+Deployment: Render
 ## Overview
 
 This application uses machine learning models trained on the NSL-KDD dataset to classify network traffic as either normal or intrusive. Users can input network parameters through a web interface, and the system returns a binary prediction indicating whether the traffic is benign or malicious.
